@@ -10,6 +10,7 @@ import { DIFFICULTY_MODES, DIFFICULTY_ORDER, getDifficultyConfig } from '../game
 import { ACHIEVEMENTS, PlayerStats, getLevelInfo } from '../game/progression';
 import { GameTheme } from '../game/themes';
 import { PlayerAvatar } from './PlayerAvatar';
+import { PWAInstallButton } from './PWAInstallButton';
 
 interface HomeScreenProps {
   playerProfile: PlayerProfile;
@@ -23,6 +24,7 @@ interface HomeScreenProps {
   friendCount: number;
   incomingFriendRequests: number;
   isSignedIn: boolean;
+  isNetworkOnline?: boolean;
   hasPendingSync: boolean;
   isSyncingCloud: boolean;
   onSignInGoogle: () => void;
@@ -50,6 +52,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   friendCount,
   incomingFriendRequests,
   isSignedIn,
+  isNetworkOnline = true,
   hasPendingSync,
   isSyncingCloud,
   onSignInGoogle,
@@ -115,7 +118,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <div className="flex items-center gap-1.5 min-w-0">
               <span
                 className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                  isSignedIn
+                  !isNetworkOnline
+                    ? 'bg-amber-400 animate-pulse'
+                    : isSignedIn
                     ? isSyncingCloud || hasPendingSync
                       ? 'bg-amber-400'
                       : 'bg-emerald-400'
@@ -123,7 +128,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 }`}
               />
               <span className="text-[8px] text-slate-400 font-['Orbitron',sans-serif] tracking-wider leading-none truncate">
-                {isSignedIn
+                {!isNetworkOnline
+                  ? 'OFFLINE MODE'
+                  : isSignedIn
                   ? hasPendingSync
                     ? 'OFFLINE QUEUED'
                     : 'CLOUD SAVED'
@@ -435,6 +442,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         >
           LEADERBOARD
         </button>
+
+        {/* PWA Install / Add to Home Screen Button (auto-hides when installed) */}
+        <PWAInstallButton activeTheme={activeTheme} />
 
         <footer className="text-[9px] text-slate-500 font-['Orbitron',sans-serif] tracking-widest uppercase pt-1 leading-none">
           Match Rows & Columns

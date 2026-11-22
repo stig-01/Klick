@@ -53,6 +53,7 @@ import { ScoreCard } from './components/ScoreCard';
 import { BlockSkinOverlay } from './components/BlockSkinOverlay';
 import { CosmeticPreviewModal } from './components/CosmeticPreviewModal';
 import { ComboFlareOverlay, ComboFlareBurst } from './components/ComboFlareOverlay';
+import { useOnlineStatus } from './hooks/usePWAInstall';
 import type { User } from 'firebase/auth';
 import {
   PlayerProfile,
@@ -233,6 +234,7 @@ export default function App() {
   const [toastNotices, setToastNotices] = useState<ToastNotice[]>([]);
 
   // Authentication & Cloud Sync State (Firebase Auth + Firestore)
+  const isNetworkOnline = useOnlineStatus();
   const [authUser, setAuthUser] = useState<User | null>(() => getCurrentAuthUser());
   const authUserRef = useRef<User | null>(authUser);
   authUserRef.current = authUser;
@@ -2423,6 +2425,20 @@ export default function App() {
         </div>
       )}
 
+      {/* Non-intrusive Offline Mode Indicator */}
+      {!isNetworkOnline && (
+        <div
+          style={{
+            backgroundColor: displayTheme.cardBg,
+            borderColor: 'rgba(251, 191, 36, 0.5)',
+          }}
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[65] pointer-events-none flex items-center gap-2 rounded-full border px-3 py-1.5 text-[9px] font-bold tracking-wider text-amber-300 font-['Orbitron',sans-serif] shadow-lg whitespace-nowrap"
+        >
+          <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+          OFFLINE MODE • SAVING LOCALLY
+        </div>
+      )}
+
       {/* Main Container: Well inset from screen edges on all devices */}
       <main
         style={{
@@ -2446,6 +2462,7 @@ export default function App() {
             friendCount={acceptedFriendCount}
             incomingFriendRequests={incomingFriendRequestsCount}
             isSignedIn={Boolean(authUser)}
+            isNetworkOnline={isNetworkOnline}
             hasPendingSync={hasPendingSync}
             isSyncingCloud={isSyncingCloud}
             onSignInGoogle={handleSignInGoogle}
